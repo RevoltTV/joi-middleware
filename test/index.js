@@ -89,7 +89,7 @@ describe('middleware/joi', () => {
                 query: { num: Joi.number().required() },
                 options: {
                     query: {
-                        allowUnknown: true
+                        allowUnknown: false
                     }
                 }
             });
@@ -99,7 +99,7 @@ describe('middleware/joi', () => {
             )
             .then(() => {
                 expect(next).to.have.been.calledOnce.and.calledWithExactly();
-                expect(spy.firstCall.args[2]).to.deep.equal({ abortEarly: false, allowUnknown: true });
+                expect(spy.firstCall.args[2]).to.deep.equal({ abortEarly: false, allowUnknown: false, stripUnknown: true });
             });
         });
     });
@@ -141,7 +141,7 @@ describe('middleware/joi', () => {
                 params: { num: Joi.number().required() },
                 options: {
                     params: {
-                        allowUnknown: true
+                        allowUnknown: false
                     }
                 }
             });
@@ -151,7 +151,7 @@ describe('middleware/joi', () => {
             )
             .then(() => {
                 expect(next).to.have.been.calledOnce.and.calledWithExactly();
-                expect(spy.firstCall.args[2]).to.deep.equal({ abortEarly: false, allowUnknown: true });
+                expect(spy.firstCall.args[2]).to.deep.equal({ abortEarly: false, allowUnknown: false, stripUnknown: true });
             });
         });
     });
@@ -193,7 +193,7 @@ describe('middleware/joi', () => {
                 body: { num: Joi.number().required() },
                 options: {
                     body: {
-                        allowUnknown: true
+                        allowUnknown: false
                     }
                 }
             });
@@ -203,7 +203,7 @@ describe('middleware/joi', () => {
             )
             .then(() => {
                 expect(next).to.have.been.calledOnce.and.calledWithExactly();
-                expect(spy.firstCall.args[2]).to.deep.equal({ abortEarly: false, allowUnknown: true });
+                expect(spy.firstCall.args[2]).to.deep.equal({ abortEarly: false, allowUnknown: false, stripUnknown: true });
             });
         });
     });

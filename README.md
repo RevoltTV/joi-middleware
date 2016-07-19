@@ -17,6 +17,11 @@ app.get('/route/:id', validate({
     },
     params: {
         id: Joi.string().guid().required()
+    },
+    options: {
+        query: {
+            allowUnknown: false
+        }
     }
 }));
 
@@ -26,4 +31,30 @@ app.post('/route', validate({
         count: Joi.number().required()
     }
 }));
+```
+
+## Configuration
+
+Each parameter key can define its own Joi validation options. All groups use
+
+```
+{
+    abortEarly: false,
+    allowUnknown: true,
+    stripUnknown: true
+}
+```
+
+by default. These can be overridden by passing in the options group.
+
+EX:
+
+```
+{
+    options: {
+        body: {},
+        params: {},
+        query: {}
+    }
+}
 ```

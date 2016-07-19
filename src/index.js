@@ -13,7 +13,9 @@ export default (schema = {}) => {
         let validations = [];
 
         let defaultOptions = {
-            abortEarly: false
+            abortEarly: false,
+            allowUnknown: true,
+            stripUnknown: true
         };
 
         if (schema.query) {
