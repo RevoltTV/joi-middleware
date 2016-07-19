@@ -20,17 +20,26 @@ export default (schema = {}) => {
 
         if (schema.query) {
             let options = _.extend({}, defaultOptions, _.get(schema, 'options.query'));
-            validations.push(validate(_.omit(req.query, 'token'), schema.query, options));
+            validations.push(
+                validate(_.omit(req.query, 'token'), schema.query, options)
+                .then((result) => { req.query = result; return req.query; })
+            );
         }
 
         if (schema.params) {
             let options = _.extend({}, defaultOptions, _.get(schema, 'options.params'));
-            validations.push(validate(req.params, schema.params, options));
+            validations.push(
+                validate(req.params, schema.params, options)
+                .then((result) => { req.params = result; return req.params; })
+            );
         }
 
         if (schema.body) {
             let options = _.extend({}, defaultOptions, _.get(schema, 'options.body'));
-            validations.push(validate(req.body, schema.body, options));
+            validations.push(
+                validate(req.body, schema.body, options)
+                .then((result) => { req.body = result; return req.body; })
+            );
         }
 
         return Promise.all(validations)

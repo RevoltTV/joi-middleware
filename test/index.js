@@ -102,6 +102,26 @@ describe('middleware/joi', () => {
                 expect(spy.firstCall.args[2]).to.deep.equal({ abortEarly: false, allowUnknown: false, stripUnknown: true });
             });
         });
+
+        it('should update query object after schema validation', () => {
+            let next = sinon.spy();
+            let req = {
+                query: {
+                    num: 5,
+                    extra: 'remove'
+                }
+            };
+
+            let middleware = joi({
+                query: { num: Joi.number().required() }
+            });
+
+            return Promise.resolve(
+                middleware(req, {}, next)
+            ).then(() => {
+                expect(req.query.extra).to.not.exist;
+            });
+        });
     });
 
     describe('path', () => {
@@ -154,6 +174,26 @@ describe('middleware/joi', () => {
                 expect(spy.firstCall.args[2]).to.deep.equal({ abortEarly: false, allowUnknown: false, stripUnknown: true });
             });
         });
+
+        it('should update params object after schema validation', () => {
+            let next = sinon.spy();
+            let req = {
+                params: {
+                    num: 5,
+                    extra: 'remove'
+                }
+            };
+
+            let middleware = joi({
+                params: { num: Joi.number().required() }
+            });
+
+            return Promise.resolve(
+                middleware(req, {}, next)
+            ).then(() => {
+                expect(req.params.extra).to.not.exist;
+            });
+        });
     });
 
     describe('body', () => {
@@ -204,6 +244,26 @@ describe('middleware/joi', () => {
             .then(() => {
                 expect(next).to.have.been.calledOnce.and.calledWithExactly();
                 expect(spy.firstCall.args[2]).to.deep.equal({ abortEarly: false, allowUnknown: false, stripUnknown: true });
+            });
+        });
+
+        it('should update body object after schema validation', () => {
+            let next = sinon.spy();
+            let req = {
+                body: {
+                    num: 5,
+                    extra: 'remove'
+                }
+            };
+
+            let middleware = joi({
+                body: { num: Joi.number().required() }
+            });
+
+            return Promise.resolve(
+                middleware(req, {}, next)
+            ).then(() => {
+                expect(req.body.extra).to.not.exist;
             });
         });
     });
