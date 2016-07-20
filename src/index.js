@@ -8,7 +8,7 @@ import {
 } from '@revolttv/errors';
 
 export default (schema = {}) => {
-    return (req, res, next) => {
+    function joi(req, res, next) {
         const validate = promisify(Joi.validate);
         let validations = [];
 
@@ -56,5 +56,9 @@ export default (schema = {}) => {
                 return next(err);
             }
         });
-    };
+    }
+
+    joi.schema = schema;
+
+    return joi;
 };

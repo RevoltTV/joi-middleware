@@ -20,6 +20,14 @@ describe('middleware/joi', () => {
         spy.restore();
     });
 
+    it('should expose function name and schema on middleware', () => {
+        let schema = { query: {} };
+        let middleware = joi(schema);
+
+        expect(middleware.name).to.equal('joi');
+        expect(middleware.schema).to.deep.equal(schema);
+    });
+
     it('should allow not specifying a schema', () => {
         let req = { query: { num: 10 }, body: { str: 'hello' } };
         let next = sinon.spy();
