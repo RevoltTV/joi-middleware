@@ -4,10 +4,26 @@ import logger    from 'winston';
 import { Model } from 'sequelize';
 import promisify from 'es6-promisify';
 
-import converter from './convert-sequelize';
+import sequelizeToJoi, { findAndConvertModels } from '@revolttv/sequelize-to-joi';
+
+function cleanSequelize(data) {
+    if (_.isArray(data)) {
+        return _.map(data, cleanSequelize);
+    } else if (_.isObject(data)) {
+        if (_.isFunction(data.toJSON)) {
+            return data.toJSON();
+        }
+
+        _.each(data, (value, key) => {
+            data[key] = cleanSequelize(value);
+        });
+    }
+
+    return data;
+}
 
 export default (schema = {}) => {
-    let valid = schema.body;
+    let valid = _.clone(schema.body);
 
     function joiResponse(req, res, next) {
         const validate = promisify(Joi.validate);
@@ -22,8 +38,10 @@ export default (schema = {}) => {
             return res.json(res.locals);
         }
 
+        let data = cleanSequelize(res.locals);
+
         let options = _.extend({}, defaultOptions, _.get(schema, 'options'));
-        return validate(res.locals, valid, options)
+        return validate(data, valid, options)
         .then((result) => {
             return res.json(result);
         })
@@ -43,12 +61,15 @@ export default (schema = {}) => {
         logger.warn('joi response schema must be specified in `body`');
     }
 
-    if (valid instanceof Model) {
-        valid = converter(valid);
-        joiResponse.model = valid;
-    } else if (_.isArray(valid) && _.first(valid) instanceof Model) {
-        valid = Joi.array().items(converter(_.first(valid)));
-        joiResponse.model = valid;
+    joiResponse.original = schema.body;
+    joiResponse.description = schema.description || '';
+
+    if (_.isArray(valid) && _.first(valid) instanceof Model) {
+        valid = Joi.array().items(sequelizeToJoi(_.first(valid), { omitAssociations: true }));
+    } else if (valid instanceof Model) {
+        valid = sequelizeToJoi(valid, { omitAssociations: true });
+    } else {
+        valid = findAndConvertModels(_.cloneDeep(valid), { omitAssociations: true });
     }
 
     joiResponse.schema = valid;

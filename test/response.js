@@ -120,14 +120,20 @@ describe('middleware/joi/response', () => {
             }
         });
 
+        let data = [{
+            id: 1,
+            name: 'test',
+            createdAt: (new Date()),
+            updatedAt: (new Date())
+        }, {
+            id: 2,
+            name: 'test2',
+            createdAt: (new Date()),
+            updatedAt: (new Date())
+        }];
+
         let res = {
-            locals: [{
-                id: 1,
-                name: 'test'
-            }, {
-                id: 2,
-                name: 'test2'
-            }],
+            locals: data,
             json: sinon.spy()
         };
 
@@ -140,7 +146,9 @@ describe('middleware/joi/response', () => {
         )
         .then(() => {
             expect(spy).to.have.been.calledOnce;
-            expect(res.json).to.have.been.calledWith(res.locals);
+            expect(res.json).to.have.been.calledOnce;
+            let result = res.json.firstCall.args[0];
+            expect(result).to.have.length(2);
         });
     });
 });
