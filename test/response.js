@@ -50,7 +50,8 @@ describe('middleware/joi/response', () => {
     it('should log a warning if response data is incorrect', () => {
         let res = {
             locals: { id: 'test' },
-            json: sinon.spy()
+            json: sinon.spy(),
+            status: sinon.stub().returnsThis()
         };
 
         let middleware = joi({
@@ -70,7 +71,8 @@ describe('middleware/joi/response', () => {
     it('should strip unknown properties from response object', () => {
         let res = {
             locals: { id: 1, name: 'test', secret: 'oh no' },
-            json: sinon.spy()
+            json: sinon.spy(),
+            status: sinon.stub().returnsThis()
         };
 
         let middleware = joi({
@@ -97,7 +99,8 @@ describe('middleware/joi/response', () => {
 
         let res = {
             locals: { id: 1, name: 'hello' },
-            json: sinon.spy()
+            json: sinon.spy(),
+            status: sinon.stub().returnsThis()
         };
 
         let middleware = joi({
@@ -134,7 +137,8 @@ describe('middleware/joi/response', () => {
 
         let res = {
             locals: data,
-            json: sinon.spy()
+            json: sinon.spy(),
+            status: sinon.stub().returnsThis()
         };
 
         let middleware = joi({
@@ -149,6 +153,54 @@ describe('middleware/joi/response', () => {
             expect(res.json).to.have.been.calledOnce;
             let result = res.json.firstCall.args[0];
             expect(result).to.have.length(2);
+        });
+    });
+
+    it('should allow specifying custom status code', () => {
+        let model = sequelize.define('test', {
+            name: {
+                type: Sequelize.STRING(123)
+            }
+        });
+
+        let res = {
+            locals: { id: 1, name: 'hello' },
+            json: sinon.spy(),
+            status: sinon.stub().returnsThis()
+        };
+
+        let middleware = joi({
+            body: model,
+            status: 201
+        });
+
+        return Promise.resolve(
+            middleware({}, res)
+        )
+        .then(() => {
+            expect(spy).to.have.been.calledOnce;
+            expect(res.json).to.have.been.calledWith({ id: 1, name: 'hello' });
+            expect(res.status).to.have.been.calledWith(201);
+        });
+    });
+
+    it('should end response if no body is defined', () => {
+        let res = {
+            locals: { id: 1, name: 'hello' },
+            end: sinon.spy(),
+            status: sinon.stub().returnsThis()
+        };
+
+        let middleware = joi({
+            status: 204
+        });
+
+        return Promise.resolve(
+            middleware({}, res)
+        )
+        .then(() => {
+            expect(res.status).to.have.been.calledWith(204);
+            expect(res.end).to.have.been.calledOnce;
         });
     });
 });

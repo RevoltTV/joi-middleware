@@ -38,17 +38,21 @@ export default (schema = {}) => {
             return res.json(res.locals);
         }
 
+        if (!valid) {
+            return res.status(schema.status || 200).end();
+        }
+
         let data = cleanSequelize(res.locals);
 
         let options = _.extend({}, defaultOptions, _.get(schema, 'options'));
         return validate(data, valid, options)
         .then((result) => {
-            return res.json(result);
+            return res.status(schema.status || 200).json(result);
         })
         .catch((err) => {
             if (err.name === 'ValidationError') {
                 logger.warn('response does not conform to expected schema', err);
-                return res.json(res.locals);
+                return res.status(schema.status || 200).json(res.locals);
             }
 
             logger.error(err);
@@ -63,13 +67,16 @@ export default (schema = {}) => {
 
     joiResponse.original = schema.body;
     joiResponse.description = schema.description || '';
+    joiResponse.status = schema.status || 200;
 
     if (_.isArray(valid) && _.first(valid) instanceof Model) {
         valid = Joi.array().items(sequelizeToJoi(_.first(valid), { omitAssociations: true }));
     } else if (valid instanceof Model) {
         valid = sequelizeToJoi(valid, { omitAssociations: true });
-    } else {
+    } else if (valid) {
         valid = findAndConvertModels(_.cloneDeep(valid), { omitAssociations: true });
+    } else {
+        valid = null;
     }
 
     joiResponse.schema = valid;
