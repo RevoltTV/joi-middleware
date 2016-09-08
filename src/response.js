@@ -61,10 +61,6 @@ export default (schema = {}) => {
         });
     }
 
-    if (_.isEmpty(valid)) {
-        logger.warn('joi response schema must be specified in `body`');
-    }
-
     joiResponse.original = schema.body;
     joiResponse.description = schema.description || '';
     joiResponse.status = schema.status || 200;
