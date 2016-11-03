@@ -1,6 +1,6 @@
 {
   "name": "@revolttv/joi-middleware",
-  "version": "0.5.1",
+  "version": "1.0.0",
   "description": "Middleware to validate request parameters",
   "main": "lib/index.js",
   "jsnext:main": "src/index",
