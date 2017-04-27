@@ -51,7 +51,9 @@ export default (schema = {}) => {
             if (err.name === 'ValidationError') {
                 let message = _.map(err.details, 'message').join('. ');
                 let fields = _.map(err.details, 'path');
-                return next(new BadRequestError(message, fields, err.details));
+                let badRequestError = new BadRequestError(message, fields);
+                badRequestError.details = err.details;
+                return next(badRequestError);
             } else {
                 return next(err);
             }
